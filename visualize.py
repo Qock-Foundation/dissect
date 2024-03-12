@@ -12,7 +12,7 @@ def mul(p1, x):
 
 
 colors = ['blue', 'orange', 'green', 'red', 'purple', 'brown', 'pink', 'gray', 'olive', 'cyan',
-          'lightblue', 'lightsalmon', 'lightgreen', 'lightcoral', 'plum', 'gold', 'plum', 'lightgray', 'lime',
+          'lightblue', 'lightsalmon', 'lightgreen', 'lightcoral', 'plum', 'gold', 'indigo', 'lightgray', 'lime',
           'turquoise']
 
 # Reading lattice
@@ -43,7 +43,7 @@ for i in range(n):
         for f in range(cnt_f):
             c = cols[i][j][f]
             if c != 0:
-                color = colors[c - 1] if c > 0 else 'white'
+                color = colors[(c - 1) % len(colors)] if c > 0 else 'white'
                 coords = [add(shift, vs[v]) for v in fs[f]]
                 coords.append(coords[0])
                 ax.fill(*zip(*coords), color=color, edgecolor='black')

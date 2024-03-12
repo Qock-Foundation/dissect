@@ -42,16 +42,6 @@ point apply_isometry(const point &a, const isometry &op) {
     return b;
 }
 
-vector<vector<int>> eq_cnf(const vector<int> &var) {
-    vector<vector<int>> res;
-    for (int x: var) {
-        for (int y: var) {
-            res.push_back({x, -y});
-        }
-    }
-    return res;
-}
-
 int main(int argc, char **argv) {
     if (argc != 3) {
         cerr << "usage: " << argv[0] << " lattice_file k" << endl;
@@ -184,20 +174,18 @@ int main(int argc, char **argv) {
             }
         }
     }
-    // Optional: additional constraints for triangular_med
+    // Optional: additional constraints for tr6
     if (cnt_f == 12) {
         for (int i = 0; i < s; i += 6) {
             for (int c = 0; c < k; c++) {
-                int x1 = 1 + (i + 0) * k + c;
-                int y1 = 1 + (i + 2) * k + c;
-                int z1 = 1 + (i + 4) * k + c;
-                int x2 = 1 + (i + 1) * k + c;
-                int y2 = 1 + (i + 3) * k + c;
-                int z2 = 1 + (i + 5) * k + c;
-                auto eq1 = eq_cnf({x1, y1, z1});
-                auto eq2 = eq_cnf({x2, y2, z2});
-                for (const auto &elem: eq1) cnf.push_back(elem);
-                for (const auto &elem: eq2) cnf.push_back(elem);
+                vector<int> xs(6);
+                for (int num = 0; num < 6; num++) {
+                    xs[num] = 1 + (i + num) * k + c;
+                }
+                for (int num = 0; num < 6; num++) {
+                    cnf.push_back({-xs[num], xs[(num + 3) % 6], xs[(num + 2) % 6]});
+                    cnf.push_back({-xs[num], xs[(num + 3) % 6], xs[(num + 4) % 6]});
+                }
             }
         }
     }

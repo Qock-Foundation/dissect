@@ -3,7 +3,7 @@
 #include <cmath>
 
 namespace Geom {
-    const double eps = 1e-3;
+    const double eps = 1e-4;
 
     struct point {
         double x, y;
