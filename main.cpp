@@ -42,9 +42,13 @@ point apply_isometry(const point &a, const isometry &op) {
     return b;
 }
 
+void print_solution(const vector<int> &sol) {
+
+}
+
 int main(int argc, char **argv) {
     if (argc != 3) {
-        cerr << "usage: " << argv[0] << " lattice_file k" << endl;
+        cerr << "usage: " << argv[0] << " lattice k" << endl;
         return 1;
     }
     int k = atoi(argv[2]);
@@ -192,10 +196,8 @@ int main(int argc, char **argv) {
 
     // Running SAT-solver
     vector<bool> sol(s * k + (k - 1) * cnt_is);
-    bool sat = satisfiable(cnf, sol);
-
-    // Output
-    if (sat) {
+    while (satisfiable(cnf, sol)) {
+        // Output
         vector<int> col(s);
         for (int i = 0; i < s; i++) {
             int ind = find(sol.begin() + i * k, sol.begin() + (i + 1) * k, true) - sol.begin();
@@ -216,16 +218,30 @@ int main(int argc, char **argv) {
             }
             cout << endl;
         }
-    } else {
-        cout << n << endl;
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                for (int f = 0; f < cnt_f; f++) {
-                    cout << -fig[i][j][f] << ' ';
+
+        // Forbidding it
+        for (int is = 0; is < cnt_is; is++) {
+            auto op = decode_isometry(is);
+            bool ok = true;
+            vector<int> target;
+            for (int i = 0; i < s; i++) {
+                if (col[i] != 1) continue;
+                point from = centers[i];
+                point to = apply_isometry(from, op);
+                int j = find(centers.begin(), centers.end(), to) - centers.begin();
+                if (j == s) {
+                    ok = false;
+                    break;
                 }
-                cout << ' ';
+                target.push_back(j);
             }
-            cout << endl;
+            if (!ok) continue;
+            for (int c = 0; c < k; c++) {
+                cnf.emplace_back();
+                for (int j: target) {
+                    cnf.back().push_back(-(1 + j * k + c));
+                }
+            }
         }
     }
 }
