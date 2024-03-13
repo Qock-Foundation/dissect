@@ -42,10 +42,6 @@ point apply_isometry(const point &a, const isometry &op) {
     return b;
 }
 
-void print_solution(const vector<int> &sol) {
-
-}
-
 int main(int argc, char **argv) {
     if (argc != 3) {
         cerr << "usage: " << argv[0] << " lattice k" << endl;

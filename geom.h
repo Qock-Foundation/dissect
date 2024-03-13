@@ -26,7 +26,7 @@ namespace Geom {
     }
 
     bool operator==(const point &a, const point &b) {
-        return abs(a.x - b.x) < eps && abs(a.y - b.y) < eps;
+        return std::abs(a.x - b.x) < eps && std::abs(a.y - b.y) < eps;
     }
 
     point rotate(const point &a, double angle) {

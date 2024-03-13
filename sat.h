@@ -18,15 +18,17 @@ bool satisfiable(const std::vector<std::vector<int>> &cnf, std::vector<bool> &so
     int m = (int) cnf.size();
     int fds[2];
     int fds2[2];
-    pipe(fds);
-    pipe(fds2);
+    if (pipe(fds) || pipe(fds2)) {
+        perror("pipe");
+        exit(1);
+    }
     int child = fork();
     if (child == 0) {
         close(fds[1]);
         close(fds2[0]);
         dup2(fds[0], 0);
         dup2(fds2[1], 1);
-        execlp("kissat", nullptr);
+        execlp("kissat", "kissat", nullptr);
         exit(-1);
     } else if (child > 0) {
         close(fds[0]);
@@ -58,8 +60,10 @@ bool satisfiable(const std::vector<std::vector<int>> &cnf, std::vector<bool> &so
                     }
                 }
             }
+            free(line);
             line = nullptr;
         }
+        free(line);
         int status;
         waitpid(child, &status, 0);
         status = WEXITSTATUS(status);
