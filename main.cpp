@@ -175,20 +175,20 @@ int main(int argc, char **argv) {
         }
     }
     // Optional: additional constraints for tr6
-    if (cnt_f == 12) {
-        for (int i = 0; i < s; i += 6) {
-            for (int c = 0; c < k; c++) {
-                vector<int> xs(6);
-                for (int num = 0; num < 6; num++) {
-                    xs[num] = 1 + (i + num) * k + c;
-                }
-                for (int num = 0; num < 6; num++) {
-                    cnf.push_back({-xs[num], xs[(num + 3) % 6], xs[(num + 2) % 6]});
-                    cnf.push_back({-xs[num], xs[(num + 3) % 6], xs[(num + 4) % 6]});
-                }
-            }
-        }
-    }
+//    if (cnt_f == 12) {
+//        for (int i = 0; i < s; i += 6) {
+//            for (int c = 0; c < k; c++) {
+//                vector<int> xs(6);
+//                for (int num = 0; num < 6; num++) {
+//                    xs[num] = 1 + (i + num) * k + c;
+//                }
+//                for (int num = 0; num < 6; num++) {
+//                    cnf.push_back({-xs[num], xs[(num + 3) % 6], xs[(num + 2) % 6]});
+//                    cnf.push_back({-xs[num], xs[(num + 3) % 6], xs[(num + 4) % 6]});
+//                }
+//            }
+//        }
+//    }
 
     // Running SAT-solver
     vector<bool> sol(s * k + (k - 1) * cnt_is);

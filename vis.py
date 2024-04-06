@@ -1,11 +1,9 @@
 import sys
 import os
-import matplotlib
-import matplotlib.pyplot as plt
 from math import *
-
-
+import matplotlib
 matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 
 
 def add(p1, p2):
@@ -53,7 +51,7 @@ while True:
         break
 
     fig = plt.figure()
-    ax = fig.add_subplot()
+    ax = fig.add_subplot(111)
     ax.set_aspect('equal')
     plt.axis('off')
     plt.tight_layout()
@@ -67,7 +65,7 @@ while True:
                     color = colors[(c - 1) % len(colors)] if c > 0 else 'white'
                     coords = [add(shift, vs[v]) for v in fs[f]]
                     coords.append(coords[0])
-                    ax.fill(*zip(*coords), color=color, edgecolor='black')
+                    ax.fill(*zip(*coords), facecolor=color, edgecolor='black')
 
     plt.savefig(f'{dest}/{cnt}.svg')
     plt.close(fig)
