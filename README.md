@@ -1,6 +1,9 @@
 # dissect
 
-To compile, execute
+First you need to install `kissat` (https://github.com/arminbiere/kissat). 
+Make sure the executable is added to your path.
+
+To compile this project, execute
 
 ```shell
 mkdir cmake-build-release
@@ -9,7 +12,8 @@ cmake .. -D CMAKE_BUILD_TYPE=Release
 make
 ```
 
-Then run `solve.sh`:
+You need to specify a lattice and a figure you want to split.
+See the directory `fig` for examples. Run `solve.sh`:
 
 ```shell
 ./solve.sh LATTICE NUM_PARTS DESTINATION_DIR
