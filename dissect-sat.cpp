@@ -84,24 +84,9 @@ int main(int argc, char **argv) {
             }
         }
     }
-    vector<pair<int, int>> used;
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < n; j++) {
-            bool found = false;
-            for (int f = 0; f < cnt_f; f++) {
-                if (fig[i][j][f]) {
-                    found = true;
-                    break;
-                }
-            }
-            if (found) {
-                used.emplace_back(i, j);
-            }
-        }
-    }
-    int pos = rand() % used.size();
-    delta = v1 * used[pos].first + v2 * used[pos].second;
+
     vector<point> centers;
+    vector<pair<int, int>> used;
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < n; j++) {
             for (int f = 0; f < cnt_f; f++) {
@@ -113,10 +98,13 @@ int main(int argc, char **argv) {
                     }
                     cent = cent / (double) fs[f].size();
                     centers.push_back(cent);
+                    used.emplace_back(i, j);
                 }
             }
         }
     }
+    int cent0 = rand() % centers.size();
+    delta = v1 * used[cent0].first + v2 * used[cent0].second;
 
     // Building CNF
     int s = (int) centers.size();
@@ -221,7 +209,7 @@ int main(int argc, char **argv) {
             bool ok = true;
             vector<int> target;
             for (int i = 0; i < s; i++) {
-                if (col[i] != 1) continue;
+                if (col[i] != col[cent0]) continue;
                 point from = centers[i];
                 point to = apply_isometry(from, op);
                 int j = find(centers.begin(), centers.end(), to) - centers.begin();

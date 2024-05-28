@@ -10,8 +10,8 @@
 #include <unistd.h>
 #include <vector>
 
-#define KISSAT_SUCCESS 10
-#define KISSAT_FAIL 20
+#define SAT_SUCCESS 10
+#define SAT_FAIL 20
 
 bool satisfiable(const std::vector<std::vector<int>> &cnf, std::vector<bool> &sol) {
     int n = (int) sol.size();
@@ -28,7 +28,7 @@ bool satisfiable(const std::vector<std::vector<int>> &cnf, std::vector<bool> &so
         close(fds2[0]);
         dup2(fds[0], 0);
         dup2(fds2[1], 1);
-        execlp("kissat", "kissat", nullptr);
+        execlp(KISSAT_EXECUTABLE, "kissat", nullptr);
         exit(-1);
     } else if (child > 0) {
         close(fds[0]);
@@ -67,9 +67,9 @@ bool satisfiable(const std::vector<std::vector<int>> &cnf, std::vector<bool> &so
         int status;
         waitpid(child, &status, 0);
         status = WEXITSTATUS(status);
-        if (status == KISSAT_SUCCESS) {
+        if (status == SAT_SUCCESS) {
             return true;
-        } else if (status == KISSAT_FAIL) {
+        } else if (status == SAT_FAIL) {
             return false;
         } else {
             throw std::runtime_error("kissat exited with code " + std::to_string(status));

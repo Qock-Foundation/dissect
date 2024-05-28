@@ -4,4 +4,7 @@ project(dissect)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_FLAGS_ASAN "-g -fsanitize=address")
 
-add_executable(dissect main.cpp)
+include(cmake/kissat.cmake)
+
+add_executable(dissect-sat dissect-sat.cpp)
+add_dependencies(dissect-sat KissatBuild)
