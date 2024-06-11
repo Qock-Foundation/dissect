@@ -1,5 +1,4 @@
 include(FetchContent)
-set(FETCHCONTENT_QUIET FALSE)
 FetchContent_Declare(
         kissat
         GIT_REPOSITORY https://github.com/arminbiere/kissat.git
@@ -7,8 +6,7 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(kissat)
 
-set(KISSAT_BINARY_DIR "${kissat_SOURCE_DIR}/build")
-set(KISSAT_EXECUTABLE "${KISSAT_BINARY_DIR}/kissat")
+set(KISSAT_EXECUTABLE "${kissat_SOURCE_DIR}/build/kissat")
 
 add_custom_command(
         COMMAND "./configure"

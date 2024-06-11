@@ -1,113 +1,36 @@
 #include <algorithm>
-#include <ctime>
 #include <fstream>
 #include <iostream>
 #include <vector>
 
-#include "geom.h"
+#include "figure.h"
+#include "isometry.h"
+#include "lattice.h"
 #include "sat.h"
 
 using namespace std;
 using namespace Geom;
 
-struct isometry {
-    int sym, rot, dx, dy;
-};
-
-int n, rot_ord;
-point v1, v2, delta;
-
-int encode_isometry(const isometry &op) {
-    int c_rot = rot_ord, c_dx = n + 1, c_dy = n + 1;
-    return ((op.sym * c_rot + op.rot) * c_dx + op.dx) * c_dy + op.dy;
-}
-
-isometry decode_isometry(int is) {
-    int c_rot = rot_ord, c_dx = n + 1, c_dy = n + 1;
-    int dy = is % c_dy;
-    is /= c_dy;
-    int dx = is % c_dx;
-    is /= c_dx;
-    int rot = is % c_rot;
-    is /= c_rot;
-    int sym = is;
-    return {sym, rot, dx, dy};
-}
-
-point apply_isometry(const point &a, const isometry &op) {
-    auto b = a;
-    if (op.sym) b.y = 2 * delta.y - b.y;
-    b = delta + rotate(b - delta, 2 * M_PI / rot_ord * op.rot);
-    b = b + v1 * op.dx + v2 * op.dy - delta;
-    return b;
-}
-
 int main(int argc, char **argv) {
-    if (argc != 3) {
-        cerr << "usage: " << argv[0] << " lattice k" << endl;
+    if (argc != 4) {
+        cerr << "usage: " << argv[0] << " lattice figure k" << endl;
         return 1;
     }
-    int k = atoi(argv[2]);
-    srand(clock());
+    std::string lattice_path(argv[1]);
+    std::string figure_path(argv[2]);
+    int k = atoi(argv[3]);
 
-    // Reading lattice
-    fstream fin(argv[1]);
-    int cnt_v;
-    fin >> cnt_v;
-    vector<point> vs(cnt_v);
-    for (int i = 0; i < cnt_v; i++) {
-        fin >> vs[i].x >> vs[i].y;
-    }
-    int cnt_f;
-    fin >> cnt_f;
-    vector<vector<int>> fs(cnt_f);
-    for (int i = 0; i < cnt_f; i++) {
-        int f_sz;
-        fin >> f_sz;
-        fs[i].resize(f_sz);
-        for (int j = 0; j < f_sz; j++) {
-            fin >> fs[i][j];
-        }
-    }
-    fin >> rot_ord;
-    v1 = {1, 0};
-    v2 = {cos(2 * M_PI / rot_ord), sin(2 * M_PI / rot_ord)};
-
-    // Reading figure
-    cin >> n;
-    int cnt_is = 2 * rot_ord * (n + 1) * (n + 1);
-    vector<vector<vector<int>>> fig(n, vector<vector<int>>(n, vector<int>(cnt_f)));
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < n; j++) {
-            for (int f = 0; f < cnt_f; f++) {
-                cin >> fig[i][j][f];
-            }
-        }
-    }
-
-    vector<point> centers;
-    vector<pair<int, int>> used;
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < n; j++) {
-            for (int f = 0; f < cnt_f; f++) {
-                if (fig[i][j][f]) {
-                    point cent = {0, 0};
-                    for (int v: fs[f]) {
-                        point cur = v1 * i + v2 * j + vs[v];
-                        cent = cent + cur;
-                    }
-                    cent = cent / (double) fs[f].size();
-                    centers.push_back(cent);
-                    used.emplace_back(i, j);
-                }
-            }
-        }
-    }
-    int cent0 = rand() % centers.size();
-    delta = v1 * used[cent0].first + v2 * used[cent0].second;
+    // Reading lattice and figure
+    ifstream fin_lattice(lattice_path);
+    ifstream fin_figure(figure_path);
+    auto lattice = read_lattice(fin_lattice);
+    auto figure = read_figure(fin_figure, lattice);
 
     // Building CNF
-    int s = (int) centers.size();
+    int s = figure.s;
+    int cnt_f = (int) lattice.fs.size();
+    int cnt_is = cnt_isometries(figure);
+    auto g = build_isometry_graph(figure);
     vector<vector<int>> cnf;
     for (int i = 0; i < s; i++) {
         cnf.emplace_back();
@@ -127,13 +50,10 @@ int main(int argc, char **argv) {
         }
     }
     for (int is = 0; is < cnt_is; is++) {
-        auto op = decode_isometry(is);
         vector<bool> used1(s), used2(s);
         for (int i = 0; i < s; i++) {
-            point from = centers[i];
-            point to = apply_isometry(from, op);
-            int j = find(centers.begin(), centers.end(), to) - centers.begin();
-            if (j == s) continue;
+            int j = g[i][is];
+            if (j == -1) continue;
             used1[i] = used2[j] = true;
             for (int c = 0; c < k - 1; c++) {
                 int id_from = 1 + i * k + (k - 1);
@@ -187,16 +107,12 @@ int main(int argc, char **argv) {
             int ind = find(sol.begin() + i * k, sol.begin() + (i + 1) * k, true) - sol.begin();
             col[i] = ind - i * k + 1;
         }
-        int id = 0;
-        cout << n << endl;
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                for (int f = 0; f < cnt_f; f++) {
-                    if (fig[i][j][f] == 0) {
-                        cout << 0 << ' ';
-                    } else {
-                        cout << col[id++] << ' ';
-                    }
+        cout << figure.n << endl;
+        for (int i = 0; i < figure.n; i++) {
+            for (int j = 0; j < figure.n; j++) {
+                for (int id: figure.ord[i][j]) {
+                    if (id == 0) cout << 0 << ' ';
+                    else cout << col[id - 1] << ' ';
                 }
                 cout << ' ';
             }
@@ -204,16 +120,20 @@ int main(int argc, char **argv) {
         }
 
         // Forbidding it
+        int c0 = -1;
+        for (int f = 0; f < cnt_f; f++) {
+            if (int id = figure.ord[figure.inner_x][figure.inner_y][f]; id != 0) {
+                c0 = col[id - 1];
+                break;
+            }
+        }
         for (int is = 0; is < cnt_is; is++) {
-            auto op = decode_isometry(is);
             bool ok = true;
             vector<int> target;
             for (int i = 0; i < s; i++) {
-                if (col[i] != col[cent0]) continue;
-                point from = centers[i];
-                point to = apply_isometry(from, op);
-                int j = find(centers.begin(), centers.end(), to) - centers.begin();
-                if (j == s) {
+                if (col[i] != c0) continue;
+                int j = g[i][is];
+                if (j == -1) {
                     ok = false;
                     break;
                 }

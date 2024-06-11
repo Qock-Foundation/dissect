@@ -20,7 +20,8 @@ if len(sys.argv) != 3:
 
 colors = ['blue', 'orange', 'green', 'red', 'purple', 'brown', 'pink', 'gray', 'olive', 'cyan',
           'lightblue', 'lightsalmon', 'lightgreen', 'lightcoral', 'plum', 'gold', 'indigo', 'lightgray', 'lime',
-          'turquoise']
+          'turquoise', 'sandybrown', 'magenta', 'darkviolet', 'mediumslateblue', 'whitesmoke', 'wheat', 'dodgerblue',
+          'darkkhaki', 'chocolate', 'firebrick']
 
 # Reading lattice
 fin = open(sys.argv[1], 'r')

@@ -1,6 +1,7 @@
 #!/bin/bash
 
 LATTICE=$1
-K=$2
-DESTINATION=$3
-./cmake-build-release/dissect-sat $LATTICE $K | python3 vis.py $LATTICE $DESTINATION
+FIGURE=$2
+K=$3
+DESTINATION=$4
+./cmake-build-release/dissect-sat $LATTICE $FIGURE $K | python3 vis.py $LATTICE $DESTINATION
