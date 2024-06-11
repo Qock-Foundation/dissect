@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <map>
 #include <set>
 #include <vector>
@@ -65,7 +66,7 @@ bool check_fractional(const std::vector<std::vector<int>> &g, std::vector<int> &
         for (int is: iss) {
             cur_set.push_back(g[i][is]);
         }
-        if (find(cur_set.begin(), cur_set.end(), -1) == cur_set.end()) {
+        if (std::find(cur_set.begin(), cur_set.end(), -1) == cur_set.end()) {
             sets.push_back(cur_set);
             for (int elem: cur_set) {
                 used[elem] = true;
@@ -73,7 +74,7 @@ bool check_fractional(const std::vector<std::vector<int>> &g, std::vector<int> &
         }
     }
     int m = (int) sets.size();
-    if (count(used.begin(), used.end(), true) < cnt * k) {
+    if (std::count(used.begin(), used.end(), true) < cnt * k) {
         return false;
     }
 
