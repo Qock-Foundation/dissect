@@ -1,5 +1,7 @@
 # dissect
 
+UPD: this project is now a part of the `mathpuz-solver` repository, see https://github.com/kuyanov/mathpuz-solver/tree/main/shape-dividing.
+
 To compile this project, execute
 
 ```shell
